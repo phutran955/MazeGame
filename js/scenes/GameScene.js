@@ -1,6 +1,8 @@
 import { gameState } from "../state/gameState.js";
 import { generateValidMapRandom } from "../services/mapService.js";
 import { router } from "../router.js";
+import QuizScene from "./QuizScene.js";
+
 
 const TILE = {
   EMPTY: 0,
@@ -14,14 +16,14 @@ const COLS = 8;
 const ROWS = 4;
 const HUD_HEIGHT = 64;
 
-export default function GameScene(app) {
-  app.innerHTML = "";
+export default function GameScene() {
+  const DESIGN_WIDTH = 1720;
+  const DESIGN_HEIGHT = 720;
 
-const TILE_SIZE = Math.min(
-  window.innerWidth / COLS,
-  (window.innerHeight - HUD_HEIGHT) / ROWS
-);
-
+  const TILE_SIZE = Math.min(
+    DESIGN_WIDTH / COLS,
+    (DESIGN_HEIGHT - HUD_HEIGHT) / ROWS
+  );
 
   if (gameState.map.length === 0) {
     const { map, start } = generateValidMapRandom();
@@ -34,16 +36,24 @@ const TILE_SIZE = Math.min(
     TILE_SIZE + "px"
   );
 
-  /* ===== DOM ===== */
-  const container = document.createElement("div");
-  container.id = "game-container";
+  /* ================= ROOT ================= */
+  const div = document.createElement("div");
+  div.id = "game-container";
+  div.style.width = "1720px";
+  div.style.height = "720px";
 
+  /* ================= HUD ================= */
   const hud = document.createElement("div");
   hud.id = "hud";
   hud.innerHTML = `❤️ ${gameState.hearts}`;
 
+  /* ================= GAME VIEW ================= */
   const gameView = document.createElement("div");
   gameView.id = "game-view";
+  gameView.style.width = "100%";
+  gameView.style.height = "100%";
+  gameView.style.position = "relative";
+  gameView.style.touchAction = "none";
 
   const mapLayer = document.createElement("div");
   mapLayer.id = "map-layer";
@@ -52,38 +62,51 @@ const TILE_SIZE = Math.min(
   playerEl.id = "player";
   playerEl.className = "player idle";
 
-  let isMoving = false;
-
   mapLayer.appendChild(playerEl);
   gameView.appendChild(mapLayer);
-  container.append(hud, gameView);
-  app.appendChild(container);
+  div.append(hud, gameView);
 
-  /* ===== PLAYER STATE ===== */
+  let isMoving = false;
+
+  /* ================= HELPERS ================= */
   function setPlayerState(state) {
     playerEl.classList.remove("idle", "run");
     playerEl.classList.add(state);
   }
 
-  /* ===== RENDER MAP ===== */
+  function isAdjacent(x, y) {
+    const px = gameState.player.x;
+    const py = gameState.player.y;
+
+    return (
+      (Math.abs(px - x) === 1 && py === y) ||
+      (Math.abs(py - y) === 1 && px === x)
+    );
+  }
+
+  /* ================= MAP ================= */
   function renderMap() {
     mapLayer.innerHTML = "";
 
     for (let y = 0; y < ROWS; y++) {
       for (let x = 0; x < COLS; x++) {
+
+        // BG
         const bg = document.createElement("div");
         bg.className = "tile tile-bg";
         bg.style.left = x * TILE_SIZE + "px";
         bg.style.top = y * TILE_SIZE + "px";
         mapLayer.appendChild(bg);
 
-        const tile = gameState.map[y][x];
-        if (tile === TILE.EMPTY) continue;
-
+        // CLICK TILE (LUÔN TẠO)
         const el = document.createElement("div");
         el.className = "tile";
         el.style.left = x * TILE_SIZE + "px";
         el.style.top = y * TILE_SIZE + "px";
+        el.dataset.x = x;
+        el.dataset.y = y;
+
+        const tile = gameState.map[y][x];
 
         if (tile === TILE.TREE) {
           el.classList.add("tree", "shake");
@@ -92,6 +115,20 @@ const TILE_SIZE = Math.min(
         if (tile === TILE.GOAL) el.textContent = "🍯";
         if (tile === TILE.BEAR) {
           el.classList.add("enemy", "bear");
+        }
+
+        // CLICK / TAP
+        el.addEventListener("click", () => {
+          const tx = Number(el.dataset.x);
+          const ty = Number(el.dataset.y);
+
+          if (!isAdjacent(tx, ty)) return;
+
+          move(tx - gameState.player.x, ty - gameState.player.y);
+        });
+
+        if (isAdjacent(x, y)) {
+          el.classList.add("can-move");
         }
 
         mapLayer.appendChild(el);
@@ -103,20 +140,18 @@ const TILE_SIZE = Math.min(
     mapLayer.style.height = ROWS * TILE_SIZE + "px";
   }
 
-  /* ===== RENDER PLAYER ===== */
+  /* ================= PLAYER ================= */
   function renderPlayer() {
     playerEl.style.left = gameState.player.x * TILE_SIZE + "px";
     playerEl.style.top = gameState.player.y * TILE_SIZE + "px";
   }
 
-  /* ===== MOVE ===== */
+  /* ================= MOVE ================= */
   function move(dx, dy) {
     if (isMoving) return;
 
-    const fromX = gameState.player.x;
-    const fromY = gameState.player.y;
-    const nx = fromX + dx;
-    const ny = fromY + dy;
+    const nx = gameState.player.x + dx;
+    const ny = gameState.player.y + dy;
 
     if (nx < 0 || ny < 0 || nx >= COLS || ny >= ROWS) return;
 
@@ -124,22 +159,20 @@ const TILE_SIZE = Math.min(
     if (tile === TILE.TREE || tile === TILE.ROCK) return;
 
     if (tile === TILE.BEAR) {
-      router.go("quiz");
+      isMoving = true;
+      router.navigate(() => QuizScene());
       return;
     }
 
     isMoving = true;
     setPlayerState("run");
 
-    // Animate tới ô mới (chưa update state)
     playerEl.style.left = nx * TILE_SIZE + "px";
     playerEl.style.top = ny * TILE_SIZE + "px";
 
-    // Lưu vị trí target tạm thời
     playerEl.dataset.nextX = nx;
     playerEl.dataset.nextY = ny;
   }
-
 
   playerEl.addEventListener("transitionend", () => {
     if (!isMoving) return;
@@ -149,16 +182,39 @@ const TILE_SIZE = Math.min(
 
     isMoving = false;
     setPlayerState("idle");
+    renderMap(); // refresh highlight ô đi được
   });
 
+  /* ================= KEYBOARD ================= */
+  function handleKey(e) {
+    switch (e.key) {
+      case "ArrowUp":
+      case "w":
+      case "W":
+        move(0, -1);
+        break;
+      case "ArrowDown":
+      case "s":
+      case "S":
+        move(0, 1);
+        break;
+      case "ArrowLeft":
+      case "a":
+      case "A":
+        move(-1, 0);
+        break;
+      case "ArrowRight":
+      case "d":
+      case "D":
+        move(1, 0);
+        break;
+    }
+  }
 
-  window.onkeydown = (e) => {
-    if (e.key === "ArrowUp") move(0, -1);
-    if (e.key === "ArrowDown") move(0, 1);
-    if (e.key === "ArrowLeft") move(-1, 0);
-    if (e.key === "ArrowRight") move(1, 0);
-  };
+  window.addEventListener("keydown", handleKey);
 
   renderMap();
   renderPlayer();
+
+  return div;
 }

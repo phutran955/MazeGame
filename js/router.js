@@ -1,18 +1,23 @@
-import StartScene from "./scenes/StartScene.js";
-import GameScene from "./scenes/GameScene.js";
-import QuizScene from "./scenes/QuizScene.js";
-
 const app = document.getElementById("app");
 
-const scenes = {
-  start: StartScene,
-  game: GameScene,
-  quiz: QuizScene
-};
-
 export const router = {
-  go(name, data) {
+  async navigate(sceneFn) {
     app.innerHTML = "";
-    scenes[name](app, data);
+
+    const result = sceneFn();
+
+    // nếu scene là async
+    if (result instanceof Promise) {
+      const node = await result;
+      if (node instanceof Node) {
+        app.appendChild(node);
+      }
+    }
+    // nếu scene là sync
+    else if (result instanceof Node) {
+      app.appendChild(result);
+    } else {
+      console.error("Scene must return a DOM node");
+    }
   }
 };
