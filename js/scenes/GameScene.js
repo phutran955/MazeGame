@@ -1,8 +1,9 @@
 import { gameState } from "../state/gameState.js";
 import { generateValidMapRandom } from "../services/mapService.js";
 import { router } from "../router.js";
-import QuizScene from "./QuizScene.js";
-
+import StartScene from "./StartScene.js";
+import QuizPopup from "../components/QuizPopup.js";
+import ResultPopup from "../components/ResultPopup.js";
 
 const TILE = {
   EMPTY: 0,
@@ -17,18 +18,21 @@ const ROWS = 4;
 const HUD_HEIGHT = 64;
 
 export default function GameScene() {
+  let isQuizOpen = false;
+  let isMoving = false;
+
   const DESIGN_WIDTH = 1720;
   const DESIGN_HEIGHT = 720;
-
   const TILE_SIZE = Math.min(
     DESIGN_WIDTH / COLS,
     (DESIGN_HEIGHT - HUD_HEIGHT) / ROWS
   );
 
   if (gameState.map.length === 0) {
-    const { map, start } = generateValidMapRandom();
+    const { map, start, enemies } = generateValidMapRandom();
     gameState.map = map;
     gameState.player = start;
+    gameState.enemies = enemies;
   }
 
   document.documentElement.style.setProperty(
@@ -66,8 +70,6 @@ export default function GameScene() {
   gameView.appendChild(mapLayer);
   div.append(hud, gameView);
 
-  let isMoving = false;
-
   /* ================= HELPERS ================= */
   function setPlayerState(state) {
     playerEl.classList.remove("idle", "run");
@@ -82,6 +84,29 @@ export default function GameScene() {
       (Math.abs(px - x) === 1 && py === y) ||
       (Math.abs(py - y) === 1 && px === x)
     );
+  }
+
+  function getEnemyAt(x, y) {
+    return gameState.enemies.find(
+      e => e.x === x && e.y === y && e.alive
+    );
+  }
+
+  function doMove(nx, ny) {
+    isMoving = true;
+    setPlayerState("run");
+
+    playerEl.style.left = nx * TILE_SIZE + "px";
+    playerEl.style.top = ny * TILE_SIZE + "px";
+
+    playerEl.dataset.nextX = nx;
+    playerEl.dataset.nextY = ny;
+  }
+
+  function resetGame() {
+    gameState.map = [];
+    gameState.enemies = [];
+    gameState.hearts = 3;
   }
 
   /* ================= MAP ================= */
@@ -111,9 +136,14 @@ export default function GameScene() {
         if (tile === TILE.TREE) {
           el.classList.add("tree", "shake");
         }
-        if (tile === TILE.ROCK) el.textContent = "🪨";
-        if (tile === TILE.GOAL) el.textContent = "🍯";
-        if (tile === TILE.BEAR) {
+        if (tile === TILE.ROCK) {
+          el.classList.add("rock");
+        }
+        if (tile === TILE.GOAL) {
+          el.classList.add("goal", "sheep");
+        }
+        const enemy = getEnemyAt(x, y);
+        if (enemy) {
           el.classList.add("enemy", "bear");
         }
 
@@ -148,7 +178,7 @@ export default function GameScene() {
 
   /* ================= MOVE ================= */
   function move(dx, dy) {
-    if (isMoving) return;
+    if (isMoving || isQuizOpen) return;
 
     const nx = gameState.player.x + dx;
     const ny = gameState.player.y + dy;
@@ -158,21 +188,83 @@ export default function GameScene() {
     const tile = gameState.map[ny][nx];
     if (tile === TILE.TREE || tile === TILE.ROCK) return;
 
-    if (tile === TILE.BEAR) {
-      isMoving = true;
-      router.navigate(() => QuizScene());
+    /* ====== GOAL ====== */
+    if (tile === TILE.GOAL) {
+      doMove(nx, ny);
+
+      setTimeout(() => {
+        ResultPopup({
+          type: "win",
+          onRestart: () => {
+            resetGame();
+            router.navigate(GameScene);
+          },
+          onExit: () => {
+            resetGame();
+            router.navigate(StartScene);
+          }
+
+        });
+      }, 300);
+
       return;
     }
 
-    isMoving = true;
-    setPlayerState("run");
+    /* ====== ENEMY ====== */
+    const enemy = getEnemyAt(nx, ny);
+    if (enemy) {
+      isQuizOpen = true;
 
-    playerEl.style.left = nx * TILE_SIZE + "px";
-    playerEl.style.top = ny * TILE_SIZE + "px";
+      const question = gameState.questions[enemy.questionIndex];
+      if (!question) {
+        console.error("❌ Missing question for enemy:", enemy);
+        isQuizOpen = false;
+        return;
+      }
 
-    playerEl.dataset.nextX = nx;
-    playerEl.dataset.nextY = ny;
+      QuizPopup({
+        question,
+        onWin: () => {
+          enemy.alive = false;
+          gameState.map[ny][nx] = TILE.EMPTY;
+          isQuizOpen = false;
+          doMove(nx, ny);
+        },
+        onLose: () => {
+          enemy.alive = false;
+          gameState.map[ny][nx] = TILE.EMPTY;
+
+          gameState.hearts--;
+          hud.innerHTML = `❤️ ${gameState.hearts}`;
+          isQuizOpen = false;
+
+          if (gameState.hearts <= 0) {
+            ResultPopup({
+              type: "lose",
+              onRestart: () => {
+                resetGame();
+                router.navigate(GameScene);
+              },
+              onExit: () => {
+                resetGame();
+                router.navigate(StartScene);
+              }
+
+            });
+            return;
+          }
+
+          renderMap();
+        }
+      });
+
+      return;
+    }
+
+    /* ====== MOVE NORMAL ====== */
+    doMove(nx, ny);
   }
+
 
   playerEl.addEventListener("transitionend", () => {
     if (!isMoving) return;

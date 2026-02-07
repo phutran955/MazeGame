@@ -1,6 +1,6 @@
 import { router } from "../router.js";
+import LoadingScene from "./LoadingScene.js";
 import { gameState } from "../state/gameState.js";
-import GameScene from "./GameScene.js";
 
 export default function StartScene() {
   const div = document.createElement("div");
@@ -17,8 +17,8 @@ export default function StartScene() {
   gameState.hearts = 3;
 
   div.querySelector("#startBtn").onclick = () => {
-    router.navigate(GameScene);
+    router.navigate(LoadingScene); 
   };
 
-  return div; 
+  return div;
 }

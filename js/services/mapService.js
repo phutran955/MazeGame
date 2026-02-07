@@ -8,35 +8,40 @@ const TILE = {
 
 const MAPS = [
   [
-    [0,0,4,0,1,0,4,1],
-    [0,0,1,0,0,0,1,0],
-    [4,1,0,4,0,1,0,0],
-    [1,0,0,0,4,0,0,3],
+    [0,4,0,0,1,2,4,1],
+    [1,1,4,0,0,0,0,4],
+    [4,1,0,4,2,1,1,0],
+    [1,0,0,1,4,0,0,3],
   ],
-  [
-    [0,0,0,4,1,0,4,1],
-    [0,1,0,0,0,1,0,0],
-    [4,0,1,4,0,0,1,0],
-    [1,0,0,0,4,0,0,3],
-  ],
-  [
-    [0,0,4,0,1,0,0,1],
-    [0,1,0,0,0,1,4,0],
-    [0,0,1,4,0,0,1,0],
-    [1,0,0,0,4,0,0,3],
-  ]
 ];
+
 
 export function generateValidMapRandom() {
   const rawMap = MAPS[Math.floor(Math.random() * MAPS.length)];
-
   const map = rawMap.map(row => [...row]);
+
+  const enemies = [];
+
+  for (let y = 0; y < map.length; y++) {
+    for (let x = 0; x < map[0].length; x++) {
+      if (map[y][x] === TILE.BEAR) {
+        enemies.push({
+          x,
+          y,
+          alive: true,
+          questionIndex: enemies.length
+        });
+      }
+    }
+  }
 
   return {
     map,
-    start: { x: 0, y: 0 },                 // góc trái
-    goal: { x: map[0].length - 1, y: map.length - 1 } // góc phải
+    enemies,
+    start: { x: 0, y: 0 },
+    goal: { x: map[0].length - 1, y: map.length - 1 }
   };
 }
+
 
 export { TILE };

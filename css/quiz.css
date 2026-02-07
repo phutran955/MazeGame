@@ -69,6 +69,7 @@
     0 0 4px rgba(255, 255, 255, 0.2);
 }
 
+
 /* ===== PLAYER ===== */
 #player {
   z-index: 3;
@@ -165,5 +166,42 @@
 
   to {
     background-position-x: calc(var(--tile-size) * -8);
+  }
+}
+
+.tile.rock {
+  position: absolute;
+  background-image: url("/assets/rock/1.png");
+  width: 160px;
+  height: 180px;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  image-rendering: pixelated;
+}
+
+
+/* ===== GOAL ===== */
+.goal {
+  position: absolute;
+  width: var(--tile-size);
+  height: var(--tile-size);
+  background-repeat: no-repeat;
+  image-rendering: pixelated;
+}
+
+.goal.sheep {
+  background-image: url("/assets/goal/1.png");
+  background-size: calc(var(--tile-size) * 12) var(--tile-size);
+  animation: GoalSheep 5s steps(12) infinite;
+}
+
+@keyframes GoalSheep {
+  from {
+    background-position-x: 0px;
+  }
+
+  to {
+    background-position-x: calc(var(--tile-size) * -12);
   }
 }

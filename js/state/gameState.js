@@ -1,6 +1,7 @@
 export const gameState = {
   map: [],
-  player: { x: 0, y: 0 },
   hearts: 3,
-  bearPos: null
+  questions: [],   // ← 7 câu hỏi cho enemy
+  enemies: []      // (để sau này gán từng enemy 1 câu)
 };
+

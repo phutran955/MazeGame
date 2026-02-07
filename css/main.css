@@ -1,15 +1,9 @@
-/* =========================
-   RESET
-========================= */
 * {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
 }
 
-/* =========================
-   HTML / BODY
-========================= */
 html,
 body {
   width: 100%;
@@ -26,9 +20,6 @@ body {
   user-select: none;
 }
 
-/* =========================
-   GAME ROOT
-========================= */
 
 #app {
   position: absolute;
@@ -40,9 +31,6 @@ body {
   transform-origin: center center;
 }
 
-/* =========================
-   ROTATE WARNING (PORTRAIT)
-========================= */
 #rotate-warning {
   position: fixed;
   inset: 0;
@@ -57,9 +45,6 @@ body {
   padding: 20px;
 }
 
-/* =========================
-   BLOCK MOBILE PORTRAIT
-========================= */
 @media screen and (orientation: portrait) and (max-width: 1024px) {
   #app {
     display: none;
