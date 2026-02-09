@@ -13,19 +13,24 @@ const TILE = {
   BEAR: 4
 };
 
-const COLS = 8;
-const ROWS = 4;
+const MAP_COLS = 9;
+const MAP_ROWS = 9;
+
+const VIEW_COLS = 8;
+const VIEW_ROWS = 4;
+
 const HUD_HEIGHT = 64;
 
 export default function GameScene() {
   let isQuizOpen = false;
   let isMoving = false;
+  let camera = { x: 0, y: 0 };
 
   const DESIGN_WIDTH = 1720;
   const DESIGN_HEIGHT = 720;
   const TILE_SIZE = Math.min(
-    DESIGN_WIDTH / COLS,
-    (DESIGN_HEIGHT - HUD_HEIGHT) / ROWS
+    DESIGN_WIDTH / VIEW_COLS,
+    (DESIGN_HEIGHT - HUD_HEIGHT) / VIEW_ROWS
   );
 
   if (gameState.map.length === 0) {
@@ -109,12 +114,35 @@ export default function GameScene() {
     gameState.hearts = 3;
   }
 
+  /* ================= CAMERA ================= */
+
+  function clamp(v, min, max) {
+    return Math.max(min, Math.min(max, v));
+  }
+
+function updateCamera() {
+  const px = gameState.player.x;
+  const py = gameState.player.y;
+
+  const targetX = px - Math.floor(VIEW_COLS / 2);
+  const targetY = py - Math.floor((VIEW_ROWS - 1) / 2);
+
+  camera.x = clamp(targetX, 0, MAP_COLS - VIEW_COLS);
+  camera.y = clamp(targetY, 0, MAP_ROWS - VIEW_ROWS);
+
+  mapLayer.style.transform = `translate(
+    ${-camera.x * TILE_SIZE}px,
+    ${-camera.y * TILE_SIZE}px
+  )`;
+}
+
+
   /* ================= MAP ================= */
   function renderMap() {
     mapLayer.innerHTML = "";
 
-    for (let y = 0; y < ROWS; y++) {
-      for (let x = 0; x < COLS; x++) {
+    for (let y = 0; y < MAP_ROWS; y++) {
+      for (let x = 0; x < MAP_COLS; x++) {
 
         // BG
         const bg = document.createElement("div");
@@ -140,7 +168,10 @@ export default function GameScene() {
           el.classList.add("rock");
         }
         if (tile === TILE.GOAL) {
-          el.classList.add("goal", "sheep");
+          el.classList.add("goal", "gold");
+        }
+        if (tile === TILE.SHEEP) {
+          el.classList.add("sheep", "grass");
         }
         const enemy = getEnemyAt(x, y);
         if (enemy) {
@@ -152,10 +183,19 @@ export default function GameScene() {
           const tx = Number(el.dataset.x);
           const ty = Number(el.dataset.y);
 
+          // chỉ cho click tile đang nằm trong camera
+          if (
+            tx < camera.x ||
+            ty < camera.y ||
+            tx >= camera.x + VIEW_COLS ||
+            ty >= camera.y + VIEW_ROWS
+          ) return;
+
           if (!isAdjacent(tx, ty)) return;
 
           move(tx - gameState.player.x, ty - gameState.player.y);
         });
+
 
         if (isAdjacent(x, y)) {
           el.classList.add("can-move");
@@ -166,8 +206,8 @@ export default function GameScene() {
     }
 
     mapLayer.appendChild(playerEl);
-    mapLayer.style.width = COLS * TILE_SIZE + "px";
-    mapLayer.style.height = ROWS * TILE_SIZE + "px";
+    mapLayer.style.width = MAP_COLS * TILE_SIZE + "px";
+    mapLayer.style.height = MAP_ROWS * TILE_SIZE + "px";
   }
 
   /* ================= PLAYER ================= */
@@ -183,10 +223,13 @@ export default function GameScene() {
     const nx = gameState.player.x + dx;
     const ny = gameState.player.y + dy;
 
-    if (nx < 0 || ny < 0 || nx >= COLS || ny >= ROWS) return;
+    if (nx < 0 || ny < 0 || nx >= MAP_COLS || ny >= MAP_ROWS) return;
 
     const tile = gameState.map[ny][nx];
-    if (tile === TILE.TREE || tile === TILE.ROCK) return;
+    if (tile === TILE.TREE ||
+      tile === TILE.ROCK ||
+      tile === TILE.SHEEP)
+      return;
 
     /* ====== GOAL ====== */
     if (tile === TILE.GOAL) {
@@ -232,7 +275,7 @@ export default function GameScene() {
         },
         onLose: () => {
           enemy.alive = false;
-          gameState.map[ny][nx] = TILE.EMPTY;
+          gameState.map[ny][nx] = TILE.SHEEP;
 
           gameState.hearts--;
           hud.innerHTML = `❤️ ${gameState.hearts}`;
@@ -249,13 +292,13 @@ export default function GameScene() {
                 resetGame();
                 router.navigate(StartScene);
               }
-
             });
             return;
           }
 
           renderMap();
         }
+
       });
 
       return;
@@ -274,8 +317,11 @@ export default function GameScene() {
 
     isMoving = false;
     setPlayerState("idle");
-    renderMap(); // refresh highlight ô đi được
+
+    updateCamera();   // ⭐ THÊM
+    renderMap();
   });
+
 
   /* ================= KEYBOARD ================= */
   function handleKey(e) {
@@ -307,6 +353,8 @@ export default function GameScene() {
 
   renderMap();
   renderPlayer();
+  updateCamera();
+
 
   return div;
 }

@@ -31,18 +31,18 @@
 }
 
 .can-move {
-  outline: 2px solid rgba(0, 255, 0, 0.5);
+  outline: 2px solid red;
   cursor: pointer;
 }
 
 /* ===== MAP ===== */
 #map-layer {
   position: absolute;
-  left: 50%;
-  top: 50%;
-  transform: translate(-50%, -50%);
+  left: 5%;
+  top: 0;
   pointer-events: auto;
 }
+
 
 
 /* ===== TILE ===== */
@@ -60,15 +60,13 @@
 
 .tile-bg {
   z-index: 1;
-  background-image: url("/assets/bg/3.png");
+  background-image: url("/assets/bg/7.png");
+  image-rendering: pixelated;
   background-size: cover;
   background-position: center;
   pointer-events: none;
-  box-shadow:
-    inset 0 0 0 1px rgba(255, 255, 255, 0.5),
-    0 0 4px rgba(255, 255, 255, 0.2);
-}
 
+}
 
 /* ===== PLAYER ===== */
 #player {
@@ -190,13 +188,38 @@
   image-rendering: pixelated;
 }
 
-.goal.sheep {
-  background-image: url("/assets/goal/1.png");
-  background-size: calc(var(--tile-size) * 12) var(--tile-size);
-  animation: GoalSheep 5s steps(12) infinite;
+.goal.gold {
+  background-image: url("/assets/goal/2.png");
+  background-size: calc(var(--tile-size) * 6) var(--tile-size);
+  animation: GoalGold 0.8s steps(6) infinite;
 }
 
-@keyframes GoalSheep {
+@keyframes GoalGold {
+  from {
+    background-position-x: 0px;
+  }
+
+  to {
+    background-position-x: calc(var(--tile-size) * -6);
+  }
+}
+
+/* ===== SHEEP ===== */
+.sheep {
+  position: absolute;
+  width: var(--tile-size);
+  height: var(--tile-size);
+  background-repeat: no-repeat;
+  image-rendering: pixelated;
+}
+
+.sheep.grass {
+  background-image: url("/assets/sheep/1.png");
+  background-size: calc(var(--tile-size) * 12) var(--tile-size);
+  animation: SheepGrass 5s steps(12) infinite;
+}
+
+@keyframes SheepGrass{
   from {
     background-position-x: 0px;
   }
