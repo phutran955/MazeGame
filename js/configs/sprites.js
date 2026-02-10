@@ -14,7 +14,7 @@ export const SPRITES = {
         },
         tree: "/assets/tree/2.png",
         rock: "/assets/rock/2.png",
-        tile: "/assets/bg/7.png"
+        tile: "/assets/bg/8.png"
     },
 
     advanced: {
@@ -23,6 +23,6 @@ export const SPRITES = {
         },
         tree: "/assets/tree/3.png",
         rock: "/assets/rock/3.png",
-        tile: "/assets/bg/7.png"
+        tile: "/assets/bg/9.png"
     }
 };
