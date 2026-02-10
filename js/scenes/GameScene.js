@@ -1,6 +1,7 @@
 import { gameState } from "../state/gameState.js";
 import { generateValidMapRandom } from "../services/mapService.js";
 import { router } from "../router.js";
+import {  SPRITES  } from "../configs/sprites.js";
 import StartScene from "./StartScene.js";
 import QuizPopup from "../components/QuizPopup.js";
 import ResultPopup from "../components/ResultPopup.js";
@@ -21,6 +22,22 @@ const VIEW_ROWS = 4;
 
 const HUD_HEIGHT = 64;
 
+const DIFFICULTY_RULES = {
+  basic: {
+    showCanMove: true,
+    loseHeartOnWrong: 0,
+  },
+  level: {
+    showCanMove: true,
+    loseHeartOnWrong: 1,
+  },
+  advanced: {
+    showCanMove: false,
+    loseHeartOnWrong: 1,
+  }
+};
+
+
 export default function GameScene() {
   let isQuizOpen = false;
   let isMoving = false;
@@ -32,6 +49,15 @@ export default function GameScene() {
     DESIGN_WIDTH / VIEW_COLS,
     (DESIGN_HEIGHT - HUD_HEIGHT) / VIEW_ROWS
   );
+
+   const difficulty = gameState.difficulty;
+
+  const sprite = SPRITES[difficulty];
+  const rules = DIFFICULTY_RULES[difficulty];
+
+  if (!sprite) {
+    throw new Error(`❌ Missing SPRITES config for difficulty: ${difficulty}`);
+  }
 
   if (gameState.map.length === 0) {
     const { map, start, enemies } = generateValidMapRandom();
@@ -111,8 +137,17 @@ export default function GameScene() {
   function resetGame() {
     gameState.map = [];
     gameState.enemies = [];
-    gameState.hearts = 3;
+
+    const HEART_BY_DIFFICULTY = {
+      basic: 5,
+      level: 3,
+      advanced: 2
+    };
+
+    gameState.hearts =
+      HEART_BY_DIFFICULTY[gameState.difficulty] ?? 3;
   }
+
 
   /* ================= CAMERA ================= */
 
@@ -120,21 +155,21 @@ export default function GameScene() {
     return Math.max(min, Math.min(max, v));
   }
 
-function updateCamera() {
-  const px = gameState.player.x;
-  const py = gameState.player.y;
+  function updateCamera() {
+    const px = gameState.player.x;
+    const py = gameState.player.y;
 
-  const targetX = px - Math.floor(VIEW_COLS / 2);
-  const targetY = py - Math.floor((VIEW_ROWS - 1) / 2);
+    const targetX = px - Math.floor(VIEW_COLS / 2);
+    const targetY = py - Math.floor((VIEW_ROWS - 1) / 2);
 
-  camera.x = clamp(targetX, 0, MAP_COLS - VIEW_COLS);
-  camera.y = clamp(targetY, 0, MAP_ROWS - VIEW_ROWS);
+    camera.x = clamp(targetX, 0, MAP_COLS - VIEW_COLS);
+    camera.y = clamp(targetY, 0, MAP_ROWS - VIEW_ROWS);
 
-  mapLayer.style.transform = `translate(
+    mapLayer.style.transform = `translate(
     ${-camera.x * TILE_SIZE}px,
     ${-camera.y * TILE_SIZE}px
   )`;
-}
+  }
 
 
   /* ================= MAP ================= */
@@ -147,6 +182,8 @@ function updateCamera() {
         // BG
         const bg = document.createElement("div");
         bg.className = "tile tile-bg";
+        bg.style.backgroundImage = `url(${sprite.tile})`;
+
         bg.style.left = x * TILE_SIZE + "px";
         bg.style.top = y * TILE_SIZE + "px";
         mapLayer.appendChild(bg);
@@ -163,9 +200,13 @@ function updateCamera() {
 
         if (tile === TILE.TREE) {
           el.classList.add("tree", "shake");
+          el.style.backgroundImage = `url(${sprite.tree})`;
+
         }
         if (tile === TILE.ROCK) {
           el.classList.add("rock");
+          el.style.backgroundImage = `url(${sprite.rock})`;
+
         }
         if (tile === TILE.GOAL) {
           el.classList.add("goal", "gold");
@@ -176,6 +217,7 @@ function updateCamera() {
         const enemy = getEnemyAt(x, y);
         if (enemy) {
           el.classList.add("enemy", "bear");
+          el.style.backgroundImage = `url(${sprite.enemy.bear})`;
         }
 
         // CLICK / TAP
@@ -197,7 +239,7 @@ function updateCamera() {
         });
 
 
-        if (isAdjacent(x, y)) {
+        if (rules.showCanMove && isAdjacent(x, y)) {
           el.classList.add("can-move");
         }
 
@@ -277,7 +319,7 @@ function updateCamera() {
           enemy.alive = false;
           gameState.map[ny][nx] = TILE.SHEEP;
 
-          gameState.hearts--;
+          gameState.hearts -= rules.loseHeartOnWrong;
           hud.innerHTML = `❤️ ${gameState.hearts}`;
           isQuizOpen = false;
 
@@ -318,7 +360,7 @@ function updateCamera() {
     isMoving = false;
     setPlayerState("idle");
 
-    updateCamera();   // ⭐ THÊM
+    updateCamera();
     renderMap();
   });
 

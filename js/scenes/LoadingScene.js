@@ -15,17 +15,31 @@ export default async function LoadingScene() {
   `;
 
   try {
-    // 1️⃣ gọi API
     const allQuestions = await quizService.getQuestions();
 
-    // 2️⃣ lấy 7 câu đầu
-    const selectedQuestions = allQuestions.slice(0, 7);
+    if (!Array.isArray(allQuestions) || allQuestions.length === 0) {
+      throw new Error("Quiz data empty or invalid");
+    }
 
-    // 3️⃣ lưu vào gameState
-    gameState.questions = selectedQuestions;
+    // 👉 difficulty do API quyết định
+    gameState.difficulty = allQuestions[0].status;
 
-    // reset trạng thái khác nếu cần
-    gameState.hearts = 3;
+    // 👉 lọc câu hỏi theo difficulty đó
+    gameState.questions = allQuestions
+      .filter(q => q.status === gameState.difficulty)
+      .slice(0, 7);
+
+    // 👉 set heart theo difficulty
+    const HEART_BY_DIFFICULTY = {
+      basic: 5,
+      level: 3,
+      advanced: 2
+    };
+
+    gameState.hearts =
+      HEART_BY_DIFFICULTY[gameState.difficulty] ?? 3;
+
+
 
     // 4️⃣ chuyển scene sau 1 nhịp nhỏ (cho mượt)
     setTimeout(() => {

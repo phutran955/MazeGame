@@ -60,7 +60,7 @@
 
 .tile-bg {
   z-index: 1;
-  background-image: url("/assets/bg/7.png");
+  /*background-image: url("/assets/bg/7.png");*/
   image-rendering: pixelated;
   background-size: cover;
   background-position: center;
@@ -126,7 +126,7 @@
 }
 
 .enemy.bear {
-  background-image: url("/assets/enemy_basic/idle.png");
+  /*ackground-image: url("/assets/enemy_basic/idle.png");*/
   background-size: calc(var(--tile-size) * 6) var(--tile-size);
   animation: bearIdle 0.6s steps(6) infinite;
 }
@@ -152,7 +152,7 @@
 }
 
 .tree.shake {
-  background-image: url("/assets/tree/idle.png");
+  /*background-image: url("/assets/tree/idle.png");*/
   background-size: calc(var(--tile-size) * 8) var(--tile-size);
   animation: treeIdle 0.6s steps(8) infinite;
 }
@@ -169,7 +169,7 @@
 
 .tile.rock {
   position: absolute;
-  background-image: url("/assets/rock/1.png");
+  /*background-image: url("/assets/rock/1.png");*/
   width: 160px;
   height: 180px;
   background-size: cover;

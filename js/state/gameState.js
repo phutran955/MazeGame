@@ -1,7 +1,8 @@
 export const gameState = {
+  difficulty: null,   // basic | level | advanced
   map: [],
+  enemies: [],
+  player: { x: 0, y: 0 },
   hearts: 3,
-  questions: [],   // ← 7 câu hỏi cho enemy
-  enemies: []      // (để sau này gán từng enemy 1 câu)
+  questions: []
 };
-
