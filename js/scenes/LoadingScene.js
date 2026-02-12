@@ -3,7 +3,7 @@ import { quizService } from "../services/quizService.js";
 import { gameState } from "../state/gameState.js";
 import GameScene from "./GameScene.js";
 
-export default async function LoadingScene() {
+export default function LoadingScene() {
   const div = document.createElement("div");
   div.className = "loading-scene";
   div.style.width = "1720px";
@@ -14,34 +14,34 @@ export default async function LoadingScene() {
     <p id="loadingText">Fetching quiz data</p>
   `;
 
-  try {
-    const allQuestions = await quizService.getQuestions();
+  // ✅ Load data sau khi UI đã render
+  (async () => {
+    try {
+      const allQuestions = await quizService.getQuestions();
 
-    if (!Array.isArray(allQuestions) || allQuestions.length === 0) {
-      throw new Error("Quiz data empty or invalid");
+      if (!Array.isArray(allQuestions) || allQuestions.length === 0) {
+        throw new Error("Quiz data empty or invalid");
+      }
+
+      gameState.difficulty = allQuestions[0].status;
+
+      gameState.questions = allQuestions
+        .filter(q => q.status === gameState.difficulty)
+        .slice(0, 7);
+
+      gameState.hearts = 3;
+
+      // Cho loading hiện tối thiểu 500ms
+      setTimeout(() => {
+        router.navigate(GameScene);
+      }, 500);
+
+    } catch (err) {
+      console.error(err);
+      div.querySelector("#loadingText").textContent =
+        "❌ Failed to load questions";
     }
-
-    // 👉 difficulty do API quyết định
-    gameState.difficulty = allQuestions[0].status;
-
-    // 👉 lọc câu hỏi theo difficulty đó
-    gameState.questions = allQuestions
-      .filter(q => q.status === gameState.difficulty)
-      .slice(0, 7);
-
-    gameState.hearts = 3;
-
-
-    // 4️⃣ chuyển scene sau 1 nhịp nhỏ (cho mượt)
-    setTimeout(() => {
-      router.navigate(GameScene);
-    }, 500);
-
-  } catch (err) {
-    console.error(err);
-    div.querySelector("#loadingText").textContent =
-      "❌ Failed to load questions";
-  }
+  })();
 
   return div;
 }

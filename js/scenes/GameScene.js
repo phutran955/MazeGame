@@ -61,11 +61,6 @@ export default function GameScene() {
   div.style.width = "1720px";
   div.style.height = "720px";
 
-  /* ================= HUD ================= */
-  const hud = document.createElement("div");
-  hud.id = "hud";
-  hud.innerHTML = `❤️ ${gameState.hearts}`;
-
   /* ================= GAME VIEW ================= */
   const gameView = document.createElement("div");
   gameView.id = "game-view";
@@ -83,7 +78,7 @@ export default function GameScene() {
 
   mapLayer.appendChild(playerEl);
   gameView.appendChild(mapLayer);
-  div.append(hud, gameView);
+  div.append(gameView);
 
   /* ================= HELPERS ================= */
   function setPlayerState(state) {
@@ -121,16 +116,65 @@ export default function GameScene() {
   function resetGame() {
     gameState.map = [];
     gameState.enemies = [];
-
-    const HEART_BY_DIFFICULTY = {
-      basic: 5,
-      level: 3,
-      advanced: 2
-    };
-
-    gameState.hearts =
-      HEART_BY_DIFFICULTY[gameState.difficulty] ?? 3;
   }
+
+  function canReachGoal() {
+  const rows = MAP_ROWS;
+  const cols = MAP_COLS;
+
+  const visited = Array.from({ length: rows }, () =>
+    Array(cols).fill(false)
+  );
+
+  const queue = [];
+
+  const startX = gameState.player.x;
+  const startY = gameState.player.y;
+
+  queue.push([startX, startY]);
+  visited[startY][startX] = true;
+
+  const blocked = [
+    TILE.TREE,
+    TILE.ROCK,
+    TILE.SHEEP
+  ];
+
+  const dirs = [
+    [1, 0],
+    [-1, 0],
+    [0, 1],
+    [0, -1]
+  ];
+
+  while (queue.length) {
+    const [x, y] = queue.shift();
+
+    if (gameState.map[y][x] === TILE.GOAL) {
+      return true; // ✅ tới đích
+    }
+
+    for (const [dx, dy] of dirs) {
+      const nx = x + dx;
+      const ny = y + dy;
+
+      if (
+        nx < 0 || ny < 0 ||
+        nx >= cols || ny >= rows
+      ) continue;
+
+      if (visited[ny][nx]) continue;
+
+      if (blocked.includes(gameState.map[ny][nx]))
+        continue;
+
+      visited[ny][nx] = true;
+      queue.push([nx, ny]);
+    }
+  }
+
+  return false; // ❌ hết đường
+}
 
 
   /* ================= CAMERA ================= */
@@ -300,29 +344,31 @@ export default function GameScene() {
           doMove(nx, ny);
         },
         onLose: () => {
-          enemy.alive = false;
-          gameState.map[ny][nx] = TILE.SHEEP;
-          gameState.hearts -= 1;
-          hud.innerHTML = `❤️ ${gameState.hearts}`;
-          isQuizOpen = false;
+  enemy.alive = false;
+  gameState.map[ny][nx] = TILE.SHEEP;
 
-          if (gameState.hearts <= 0) {
-            ResultPopup({
-              type: "lose",
-              onRestart: () => {
-                resetGame();
-                router.navigate(GameScene);
-              },
-              onExit: () => {
-                resetGame();
-                router.navigate(StartScene);
-              }
-            });
-            return;
-          }
+  isQuizOpen = false;
 
-          renderMap();
-        }
+  renderMap();
+
+  // ✅ Check còn đường không
+  const canWin = canReachGoal();
+
+  if (!canWin) {
+    ResultPopup({
+      type: "lose",
+      onRestart: () => {
+        resetGame();
+        router.navigate(GameScene);
+      },
+      onExit: () => {
+        resetGame();
+        router.navigate(StartScene);
+      }
+    });
+  }
+}
+
 
       });
 
