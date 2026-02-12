@@ -62,27 +62,105 @@ export function generateValidMapRandom() {
     maps[Math.floor(Math.random() * maps.length)];
 
   const map = rawMap.map(row => [...row]);
-  const enemies = [];
 
-  for (let y = 0; y < map.length; y++) {
-    for (let x = 0; x < map[0].length; x++) {
-      if (map[y][x] === TILE.BEAR) {
-        enemies.push({
-          x,
-          y,
-          alive: true,
-          questionIndex: enemies.length
-        });
+  const rows = map.length;
+  const cols = map[0].length;
+
+  const start = { x: 0, y: 0 };
+
+  /* ================= BFS: Tìm vùng đi được ================= */
+
+  const visited = Array.from({ length: rows }, () =>
+    Array(cols).fill(false)
+  );
+
+  const queue = [];
+
+  const blocked = [
+    TILE.TREE,
+    TILE.ROCK,
+    TILE.SHEEP
+  ];
+
+  queue.push([start.x, start.y]);
+  visited[start.y][start.x] = true;
+
+  const dirs = [
+    [1, 0],
+    [-1, 0],
+    [0, 1],
+    [0, -1]
+  ];
+
+  while (queue.length) {
+    const [x, y] = queue.shift();
+
+    for (const [dx, dy] of dirs) {
+      const nx = x + dx;
+      const ny = y + dy;
+
+      if (
+        nx < 0 || ny < 0 ||
+        nx >= cols || ny >= rows
+      ) continue;
+
+      if (visited[ny][nx]) continue;
+
+      if (blocked.includes(map[ny][nx]))
+        continue;
+
+      visited[ny][nx] = true;
+      queue.push([nx, ny]);
+    }
+  }
+
+  /* ================= Tạo Enemy ================= */
+
+  const enemies = [];
+  const questions = gameState.questions || [];
+
+  let qIndex = 0;
+
+  for (let y = 0; y < rows; y++) {
+    for (let x = 0; x < cols; x++) {
+
+      // Chỉ xử lý BEAR
+      if (map[y][x] !== TILE.BEAR) continue;
+
+      // ❌ Không tới được → xóa
+      if (!visited[y][x]) {
+        map[y][x] = TILE.EMPTY;
+        continue;
       }
+
+      // ❌ Hết câu hỏi → thành vật cản
+      if (qIndex >= questions.length) {
+        map[y][x] = TILE.SHEEP; // hoặc EMPTY
+        continue;
+      }
+
+      // ✅ Bear hợp lệ
+      enemies.push({
+        x,
+        y,
+        alive: true,
+        questionIndex: qIndex
+      });
+
+      qIndex++;
     }
   }
 
   return {
     map,
     enemies,
-    start: { x: 0, y: 0 },
-    goal: { x: map[0].length - 1, y: map.length - 1 }
+    start,
+    goal: {
+      x: cols - 1,
+      y: rows - 1
+    }
   };
 }
+
 
 export { TILE };
