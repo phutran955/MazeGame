@@ -22,21 +22,6 @@ const VIEW_ROWS = 4;
 
 const HUD_HEIGHT = 64;
 
-const DIFFICULTY_RULES = {
-  basic: {
-    showCanMove: true,
-    loseHeartOnWrong: 0,
-  },
-  level: {
-    showCanMove: true,
-    loseHeartOnWrong: 1,
-  },
-  advanced: {
-    showCanMove: false,
-    loseHeartOnWrong: 1,
-  }
-};
-
 
 export default function GameScene() {
   let isQuizOpen = false;
@@ -53,7 +38,6 @@ export default function GameScene() {
    const difficulty = gameState.difficulty;
 
   const sprite = SPRITES[difficulty];
-  const rules = DIFFICULTY_RULES[difficulty];
 
   if (!sprite) {
     throw new Error(`❌ Missing SPRITES config for difficulty: ${difficulty}`);
@@ -239,7 +223,7 @@ export default function GameScene() {
         });
 
 
-        if (rules.showCanMove && isAdjacent(x, y)) {
+        if (isAdjacent(x, y)) {
           el.classList.add("can-move");
         }
 
@@ -318,8 +302,7 @@ export default function GameScene() {
         onLose: () => {
           enemy.alive = false;
           gameState.map[ny][nx] = TILE.SHEEP;
-
-          gameState.hearts -= rules.loseHeartOnWrong;
+          gameState.hearts -= 1;
           hud.innerHTML = `❤️ ${gameState.hearts}`;
           isQuizOpen = false;
 

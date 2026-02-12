@@ -29,16 +29,7 @@ export default async function LoadingScene() {
       .filter(q => q.status === gameState.difficulty)
       .slice(0, 7);
 
-    // 👉 set heart theo difficulty
-    const HEART_BY_DIFFICULTY = {
-      basic: 5,
-      level: 3,
-      advanced: 2
-    };
-
-    gameState.hearts =
-      HEART_BY_DIFFICULTY[gameState.difficulty] ?? 3;
-
+    gameState.hearts = 3;
 
 
     // 4️⃣ chuyển scene sau 1 nhịp nhỏ (cho mượt)
