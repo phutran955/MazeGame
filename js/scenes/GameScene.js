@@ -1,7 +1,7 @@
 import { gameState } from "../state/gameState.js";
 import { generateValidMapRandom } from "../services/mapService.js";
 import { router } from "../router.js";
-import {  SPRITES  } from "../configs/sprites.js";
+import { SPRITES } from "../configs/sprites.js";
 import StartScene from "./StartScene.js";
 import QuizPopup from "../components/QuizPopup.js";
 import ResultPopup from "../components/ResultPopup.js";
@@ -35,7 +35,7 @@ export default function GameScene() {
     (DESIGN_HEIGHT - HUD_HEIGHT) / VIEW_ROWS
   );
 
-   const difficulty = gameState.difficulty;
+  const difficulty = gameState.difficulty;
 
   const sprite = SPRITES[difficulty];
 
@@ -119,62 +119,62 @@ export default function GameScene() {
   }
 
   function canReachGoal() {
-  const rows = MAP_ROWS;
-  const cols = MAP_COLS;
+    const rows = MAP_ROWS;
+    const cols = MAP_COLS;
 
-  const visited = Array.from({ length: rows }, () =>
-    Array(cols).fill(false)
-  );
+    const visited = Array.from({ length: rows }, () =>
+      Array(cols).fill(false)
+    );
 
-  const queue = [];
+    const queue = [];
 
-  const startX = gameState.player.x;
-  const startY = gameState.player.y;
+    const startX = gameState.player.x;
+    const startY = gameState.player.y;
 
-  queue.push([startX, startY]);
-  visited[startY][startX] = true;
+    queue.push([startX, startY]);
+    visited[startY][startX] = true;
 
-  const blocked = [
-    TILE.TREE,
-    TILE.ROCK,
-    TILE.SHEEP
-  ];
+    const blocked = [
+      TILE.TREE,
+      TILE.ROCK,
+      TILE.SHEEP
+    ];
 
-  const dirs = [
-    [1, 0],
-    [-1, 0],
-    [0, 1],
-    [0, -1]
-  ];
+    const dirs = [
+      [1, 0],
+      [-1, 0],
+      [0, 1],
+      [0, -1]
+    ];
 
-  while (queue.length) {
-    const [x, y] = queue.shift();
+    while (queue.length) {
+      const [x, y] = queue.shift();
 
-    if (gameState.map[y][x] === TILE.GOAL) {
-      return true; // ✅ tới đích
+      if (gameState.map[y][x] === TILE.GOAL) {
+        return true; // ✅ tới đích
+      }
+
+      for (const [dx, dy] of dirs) {
+        const nx = x + dx;
+        const ny = y + dy;
+
+        if (
+          nx < 0 || ny < 0 ||
+          nx >= cols || ny >= rows
+        ) continue;
+
+        if (visited[ny][nx]) continue;
+
+        if (blocked.includes(gameState.map[ny][nx]))
+          continue;
+
+        visited[ny][nx] = true;
+        queue.push([nx, ny]);
+      }
     }
 
-    for (const [dx, dy] of dirs) {
-      const nx = x + dx;
-      const ny = y + dy;
-
-      if (
-        nx < 0 || ny < 0 ||
-        nx >= cols || ny >= rows
-      ) continue;
-
-      if (visited[ny][nx]) continue;
-
-      if (blocked.includes(gameState.map[ny][nx]))
-        continue;
-
-      visited[ny][nx] = true;
-      queue.push([nx, ny]);
-    }
+    return false; // ❌ hết đường
   }
-
-  return false; // ❌ hết đường
-}
 
 
   /* ================= CAMERA ================= */
@@ -344,30 +344,30 @@ export default function GameScene() {
           doMove(nx, ny);
         },
         onLose: () => {
-  enemy.alive = false;
-  gameState.map[ny][nx] = TILE.SHEEP;
+          enemy.alive = false;
+          gameState.map[ny][nx] = TILE.SHEEP;
 
-  isQuizOpen = false;
+          isQuizOpen = false;
 
-  renderMap();
+          renderMap();
 
-  // ✅ Check còn đường không
-  const canWin = canReachGoal();
+          // ✅ Check còn đường không
+          const canWin = canReachGoal();
 
-  if (!canWin) {
-    ResultPopup({
-      type: "lose",
-      onRestart: () => {
-        resetGame();
-        router.navigate(GameScene);
-      },
-      onExit: () => {
-        resetGame();
-        router.navigate(StartScene);
-      }
-    });
-  }
-}
+          if (!canWin) {
+            ResultPopup({
+              type: "lose",
+              onRestart: () => {
+                resetGame();
+                router.navigate(GameScene);
+              },
+              onExit: () => {
+                resetGame();
+                router.navigate(StartScene);
+              }
+            });
+          }
+        }
 
 
       });
