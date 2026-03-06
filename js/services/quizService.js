@@ -2,7 +2,9 @@ import { apiGet } from "./api.js";
 
 
 const QUIZ_ID = 19;
-const QUIZ_MODE = "basic";
+const QUIZ_MODE = "level";
+const DIFFICULTY_ORDER = ["basic", "level", "advanced"];
+
 
 function mapQuestion(question) {
 
@@ -84,15 +86,27 @@ function mapQuestion(question) {
 export const quizService = {
 
   async getQuestions() {
-    const quiz = await apiGet(`/exercises/${QUIZ_ID}`);
+  const quiz = await apiGet(`/exercises/${QUIZ_ID}`);
 
-    if (!quiz.questions || quiz.questions.length === 0) {
-      return [];
-    }
-
-    return quiz.questions
-      .filter(q => q.status === QUIZ_MODE)
-      .map(mapQuestion)
-      .filter(Boolean);
+  if (!quiz.questions || quiz.questions.length === 0) {
+    return [];
   }
+
+  const maxIndex = DIFFICULTY_ORDER.indexOf(QUIZ_MODE);
+
+  if (maxIndex === -1) {
+    console.error("Invalid QUIZ_MODE:", QUIZ_MODE);
+    return [];
+  }
+
+  return quiz.questions
+    // ✅ Lấy từ basic → tới mode hiện tại
+    .filter(q => {
+      const idx = DIFFICULTY_ORDER.indexOf(q.status);
+      return idx !== -1 && idx <= maxIndex;
+    })
+    .map(mapQuestion)
+    .filter(Boolean);
+}
+
 };

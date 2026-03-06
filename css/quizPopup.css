@@ -1,0 +1,143 @@
+/* =========================
+   PIXEL QUIZ POPUP
+========================= */
+
+.quiz-popup {
+  /* Size popup */
+  width: 720px;
+  min-height: 420px;
+
+  /* Ảnh nền cuộn giấy */
+  background: url("../assets/bg/Quiz_BG.png") center / cover no-repeat;
+
+  /* Chừa mép cuộn */
+  padding: 50px 100px 60px;
+
+  /* Font */
+  font-family: "VT323", monospace;
+  font-size: 28px;
+  line-height: 1.6;
+  color: #2b1a0f;
+
+  /* ❌ XÓA VIỀN */
+  border: none;
+  box-shadow: none;
+
+  /* Hiệu ứng nổi nhẹ */
+  filter: drop-shadow(6px 6px 10px rgba(0, 0, 0, 0.6));
+
+  animation: popupIn 0.2s steps(4);
+
+  position: relative;
+}
+
+/* Overlay nền tối */
+.quiz-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  z-index: 9999;
+}
+
+/* Hiệu ứng mở popup */
+@keyframes popupIn {
+  from {
+    transform: scale(0);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* Câu hỏi */
+.quiz-popup h3 {
+  margin-bottom: 0px;
+  text-align: center;
+  font-size: 25px;
+  padding: 0px 30px;
+}
+
+/* Khu vực đáp án */
+.answers {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin: 0px 40px;
+
+  bottom: 100px;
+  position: absolute;
+}
+
+/* Nút chọn đáp án */
+.quiz-popup button {
+  background: #cca24da9;
+  color: #2a180a;
+
+  border: none;
+  padding: 10px;
+
+  min-width: 200px;
+
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 20px;
+
+  transition: all 0.05s steps(2);
+}
+
+/* Hover */
+.quiz-popup button:hover {
+  background: #e7ae05f3;
+  color: #000;
+}
+
+/* Click */
+.quiz-popup button:active {
+  transform: translate(2px, 2px);
+  box-shadow: 1px 1px 0 #000;
+}
+
+/* =========================
+   FILL BLANK MODE
+========================= */
+
+.fill-blank {
+  text-align: center;
+}
+
+/* Ô input */
+#fillInput {
+  width: 160px;
+  margin: 10px 0;
+  padding: 6px;
+
+  background: #d89713a8;
+  color: #000;
+
+  border: none;
+  border-radius: 10px;
+
+  font-family: inherit;
+  font-size: 22px;
+
+  outline: none;
+}
+
+/* Khi focus input */
+#fillInput:focus {
+  border-color: #00ff00;
+  box-shadow: 0 0 6px #00ff00;
+}
+
+/* Nút OK */
+#submitFill {
+  margin-top: 8px;
+  padding: 6px 16px;
+}
