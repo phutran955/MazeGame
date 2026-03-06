@@ -1,6 +1,8 @@
 import { gameState } from "../state/gameState.js";
 import { generateValidMapRandom } from "../services/mapService.js";
 import { router } from "../router.js";
+import { playSound, playBGM } from "../scenes/soundManager.js";
+
 
 const TILE = {
   EMPTY: 0,
@@ -14,13 +16,14 @@ const COLS = 8;
 const ROWS = 4;
 const HUD_HEIGHT = 64;
 
+playBGM();
 export default function GameScene(app) {
   app.innerHTML = "";
 
-const TILE_SIZE = Math.min(
-  window.innerWidth / COLS,
-  (window.innerHeight - HUD_HEIGHT) / ROWS
-);
+  const TILE_SIZE = Math.min(
+    window.innerWidth / COLS,
+    (window.innerHeight - HUD_HEIGHT) / ROWS
+  );
 
 
   if (gameState.map.length === 0) {
@@ -121,15 +124,22 @@ const TILE_SIZE = Math.min(
     if (nx < 0 || ny < 0 || nx >= COLS || ny >= ROWS) return;
 
     const tile = gameState.map[ny][nx];
+
+    if (tile === TILE.GOAL) {
+      playSound("win"); // 🔊 chiến thắng
+    }
+
     if (tile === TILE.TREE || tile === TILE.ROCK) return;
 
     if (tile === TILE.BEAR) {
+      playSound("lose");
       router.go("quiz");
       return;
     }
 
     isMoving = true;
     setPlayerState("run");
+    playSound("move");
 
     // Animate tới ô mới (chưa update state)
     playerEl.style.left = nx * TILE_SIZE + "px";
