@@ -8,7 +8,7 @@ const sounds = {
 
 // Nhạc nền lặp
 sounds.bgm.loop = true;
-sounds.bgm.volume = 0.2;
+sounds.bgm.volume = 0.1;
 
 export function playSound(name) {
   const sound = sounds[name];
@@ -22,7 +22,7 @@ export function playSound(name) {
     setTimeout(() => {
       sound.pause();
       sound.currentTime = 0;
-    }, 1000); // 1000ms = 1 giây
+    }, 2000); 
   }
 }
 
