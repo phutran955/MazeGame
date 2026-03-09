@@ -1,6 +1,8 @@
 import { gameState } from "../state/gameState.js";
 import { generateValidMapRandom } from "../services/mapService.js";
 import { router } from "../router.js";
+import { playSound, playBGM } from "../scenes/soundManager.js";
+
 import { SPRITES } from "../configs/sprites.js";
 import StartScene from "./StartScene.js";
 import QuizPopup from "../components/QuizPopup.js";
@@ -24,6 +26,7 @@ const HUD_HEIGHT = 64;
 
 
 export default function GameScene() {
+  playBGM();
   let isQuizOpen = false;
   let isMoving = false;
   let camera = { x: 0, y: 0 };
@@ -86,6 +89,14 @@ export default function GameScene() {
     playerEl.classList.add(state);
   }
 
+  function updatePlayerDirection(dx) {
+    if (dx < 0) {
+      playerEl.classList.add("flip");   // quay sang trái
+    } else if (dx > 0) {
+      playerEl.classList.remove("flip"); // quay sang phải
+    }
+  }
+
   function isAdjacent(x, y) {
     const px = gameState.player.x;
     const py = gameState.player.y;
@@ -103,6 +114,7 @@ export default function GameScene() {
   }
 
   function doMove(nx, ny) {
+    playSound("move");
     isMoving = true;
     setPlayerState("run");
 
@@ -190,13 +202,24 @@ export default function GameScene() {
     const targetX = px - Math.floor(VIEW_COLS / 2);
     const targetY = py - Math.floor((VIEW_ROWS - 1) / 2);
 
-    camera.x = clamp(targetX, 0, MAP_COLS - VIEW_COLS);
-    camera.y = clamp(targetY, 0, MAP_ROWS - VIEW_ROWS);
+    const clampX = clamp(targetX, 0, MAP_COLS - VIEW_COLS);
+    const clampY = clamp(targetY, 0, MAP_ROWS - VIEW_ROWS);
+
+    // Smooth camera (lerp)
+    const smooth = 0.15;
+
+    camera.x += (clampX - camera.x) * smooth;
+    camera.y += (clampY - camera.y) * smooth;
 
     mapLayer.style.transform = `translate(
     ${-camera.x * TILE_SIZE}px,
     ${-camera.y * TILE_SIZE}px
   )`;
+  }
+
+  function cameraLoop() {
+    updateCamera();
+    requestAnimationFrame(cameraLoop);
   }
 
 
@@ -267,7 +290,12 @@ export default function GameScene() {
         });
 
 
-        if (isAdjacent(x, y)) {
+        if (
+          isAdjacent(x, y) &&
+          tile !== TILE.TREE &&
+          tile !== TILE.ROCK &&
+          tile !== TILE.SHEEP
+        ) {
           el.classList.add("can-move");
         }
 
@@ -293,6 +321,8 @@ export default function GameScene() {
     const nx = gameState.player.x + dx;
     const ny = gameState.player.y + dy;
 
+    updatePlayerDirection(dx);
+
     if (nx < 0 || ny < 0 || nx >= MAP_COLS || ny >= MAP_ROWS) return;
 
     const tile = gameState.map[ny][nx];
@@ -303,6 +333,7 @@ export default function GameScene() {
 
     /* ====== GOAL ====== */
     if (tile === TILE.GOAL) {
+      playSound("win");
       doMove(nx, ny);
 
       setTimeout(() => {
@@ -324,6 +355,42 @@ export default function GameScene() {
     }
 
     /* ====== ENEMY ====== */
+    function showPraise() {
+      const praiseList = [
+        "Giỏi quá! 😆",
+        "Xuất sắc! 🌟",
+        "Chính xác rồi! 🎉",
+        "Tuyệt vời! 🧠"
+      ];
+
+      const text = praiseList[Math.floor(Math.random() * praiseList.length)];
+
+      const el = document.createElement("div");
+      el.innerText = text;
+
+      el.style.position = "absolute";
+      el.style.top = "50%";
+      el.style.left = "50%";
+      el.style.transform = "translate(-50%, -50%) scale(0.5)";
+
+      el.style.fontSize = "80px";
+      el.style.fontWeight = "bold";
+      el.style.fontFamily = "Comic Sans MS, cursive";
+
+      el.style.color = "#ffb300";
+      el.style.webkitTextStroke = "4px white";
+
+      el.style.textShadow = "0 8px 20px rgba(123,77,255,0.6)";
+      el.style.zIndex = "999";
+      el.style.pointerEvents = "none";
+
+      el.style.animation = "praisePop 0.6s ease forwards";
+
+      gameView.appendChild(el);
+
+      setTimeout(() => el.remove(), 1200);
+    }
+
     const enemy = getEnemyAt(nx, ny);
     if (enemy) {
       isQuizOpen = true;
@@ -338,12 +405,15 @@ export default function GameScene() {
       QuizPopup({
         question,
         onWin: () => {
+          playSound("correct");
           enemy.alive = false;
           gameState.map[ny][nx] = TILE.EMPTY;
           isQuizOpen = false;
+          showPraise();
           doMove(nx, ny);
         },
         onLose: () => {
+          playSound("lose");
           enemy.alive = false;
           gameState.map[ny][nx] = TILE.SHEEP;
 
@@ -355,6 +425,7 @@ export default function GameScene() {
           const canWin = canReachGoal();
 
           if (!canWin) {
+            playSound("lose");
             ResultPopup({
               type: "lose",
               onRestart: () => {
@@ -389,8 +460,8 @@ export default function GameScene() {
     isMoving = false;
     setPlayerState("idle");
 
-    updateCamera();
     renderMap();
+    updateCamera();
   });
 
 
@@ -424,7 +495,7 @@ export default function GameScene() {
 
   renderMap();
   renderPlayer();
-  updateCamera();
+  cameraLoop();
 
 
   return div;
