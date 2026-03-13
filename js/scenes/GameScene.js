@@ -17,9 +17,9 @@ const TILE = {
 };
 
 const MAP_COLS = 9;
-const MAP_ROWS = 9;
+const MAP_ROWS = 4;
 
-const VIEW_COLS = 8;
+const VIEW_COLS = 9;
 const VIEW_ROWS = 4;
 
 const HUD_HEIGHT = 64;
@@ -29,7 +29,7 @@ export default function GameScene() {
   playBGM();
   let isQuizOpen = false;
   let isMoving = false;
-  let camera = { x: 0, y: 0 };
+  //let camera = { x: 0, y: 0 };
 
   const DESIGN_WIDTH = 1720;
   const DESIGN_HEIGHT = 720;
@@ -195,32 +195,32 @@ export default function GameScene() {
     return Math.max(min, Math.min(max, v));
   }
 
-  function updateCamera() {
-    const px = gameState.player.x;
-    const py = gameState.player.y;
+  // function updateCamera() {
+  //   const px = gameState.player.x;
+  //   const py = gameState.player.y;
 
-    const targetX = px - Math.floor(VIEW_COLS / 2);
-    const targetY = py - Math.floor((VIEW_ROWS - 1) / 2);
+  //   const targetX = px - Math.floor(VIEW_COLS / 2);
+  //   const targetY = py - Math.floor((VIEW_ROWS - 1) / 2);
 
-    const clampX = clamp(targetX, 0, MAP_COLS - VIEW_COLS);
-    const clampY = clamp(targetY, 0, MAP_ROWS - VIEW_ROWS);
+  //   const clampX = clamp(targetX, 0, MAP_COLS - VIEW_COLS);
+  //   const clampY = clamp(targetY, 0, MAP_ROWS - VIEW_ROWS);
 
-    // Smooth camera (lerp)
-    const smooth = 0.15;
+  //   // Smooth camera (lerp)
+  //   const smooth = 0.15;
 
-    camera.x += (clampX - camera.x) * smooth;
-    camera.y += (clampY - camera.y) * smooth;
+  //   camera.x += (clampX - camera.x) * smooth;
+  //   camera.y += (clampY - camera.y) * smooth;
 
-    mapLayer.style.transform = `translate(
-    ${-camera.x * TILE_SIZE}px,
-    ${-camera.y * TILE_SIZE}px
-  )`;
-  }
+  //   mapLayer.style.transform = `translate(
+  //   ${-camera.x * TILE_SIZE}px,
+  //   ${-camera.y * TILE_SIZE}px
+  // )`;
+  // }
 
-  function cameraLoop() {
-    updateCamera();
-    requestAnimationFrame(cameraLoop);
-  }
+  // function cameraLoop() {
+  //   updateCamera();
+  //   requestAnimationFrame(cameraLoop);
+  // }
 
 
   /* ================= MAP ================= */
@@ -277,12 +277,12 @@ export default function GameScene() {
           const ty = Number(el.dataset.y);
 
           // chỉ cho click tile đang nằm trong camera
-          if (
-            tx < camera.x ||
-            ty < camera.y ||
-            tx >= camera.x + VIEW_COLS ||
-            ty >= camera.y + VIEW_ROWS
-          ) return;
+          // if (
+          //   tx < camera.x ||
+          //   ty < camera.y ||
+          //   tx >= camera.x + VIEW_COLS ||
+          //   ty >= camera.y + VIEW_ROWS
+          // ) return;
 
           if (!isAdjacent(tx, ty)) return;
 
@@ -461,7 +461,7 @@ export default function GameScene() {
     setPlayerState("idle");
 
     renderMap();
-    updateCamera();
+    //updateCamera();
   });
 
 
@@ -495,7 +495,7 @@ export default function GameScene() {
 
   renderMap();
   renderPlayer();
-  cameraLoop();
+  //cameraLoop();
 
 
   return div;
