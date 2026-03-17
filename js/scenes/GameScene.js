@@ -1,9 +1,8 @@
 import { gameState } from "../state/gameState.js";
 import { generateValidMapRandom } from "../services/mapService.js";
 import { router } from "../router.js";
-import { playSound, playBGM, toggleSound  } from "../scenes/soundManager.js";
+import { playSound, playBGM, toggleSound } from "../components/soundManager.js";
 import { SPRITES } from "../configs/sprites.js";
-import StartScene from "./StartScene.js";
 import QuizPopup from "../components/QuizPopup.js";
 import ResultPopup from "../components/ResultPopup.js";
 
@@ -22,6 +21,9 @@ const VIEW_COLS = 9;
 const VIEW_ROWS = 4;
 
 const HUD_HEIGHT = 64;
+
+let correctCount = 0;
+let incorrectCount = 0;
 
 
 export default function GameScene() {
@@ -83,17 +85,66 @@ export default function GameScene() {
   div.append(gameView);
 
   /* ================= SOUND BUTTON ================= */
+  const soundBtn = document.createElement("button");
+  soundBtn.className = "sound-btn";
 
-const soundBtn = document.createElement("button");
-soundBtn.innerText = "🔊";
-soundBtn.className = "sound-btn";
+  const icon = document.createElement("img");
+  icon.src = "../assets/button/unmute_Button.png"; // ảnh mặc định
+  icon.alt = "sound";
 
-soundBtn.addEventListener("click", () => {
-  const enabled = toggleSound();
-  soundBtn.innerText = enabled ? "🔊" : "🔇";
-});
+  soundBtn.appendChild(icon);
 
-div.appendChild(soundBtn);
+  soundBtn.addEventListener("click", () => {
+    const enabled = toggleSound();
+
+    icon.src = enabled
+      ? "/assets/button/unmute_Button.png"
+      : "/assets/button/mute_Button.png";
+  });
+
+  div.appendChild(soundBtn);
+
+  /* ================= CONTROL BUTTONS ================= */
+
+  const controlWrapper = document.createElement("div");
+  controlWrapper.className = "control-buttons";
+
+  // RESET BUTTON
+  const resetBtn = document.createElement("button");
+  resetBtn.className = "control-btn";
+
+  const resetIcon = document.createElement("img");
+  resetIcon.src = "/assets/button/replay_Button.png";
+  resetIcon.alt = "reset";
+
+  resetBtn.appendChild(resetIcon);
+
+  resetBtn.addEventListener("click", () => {
+    playSound("click");
+    resetGame();
+    router.navigate(GameScene);
+  });
+
+  // HOME BUTTON
+  const homeBtn = document.createElement("button");
+  homeBtn.className = "control-btn";
+
+  const homeIcon = document.createElement("img");
+  homeIcon.src = "/assets/button/home_Button.png";
+  homeIcon.alt = "home";
+
+  homeBtn.appendChild(homeIcon);
+
+  homeBtn.addEventListener("click", () => {
+    playSound("click");
+    resetGame();
+    window.location.href = "https://www.lmo.edu.vn/student/lesson-detail/72";
+  });
+
+  controlWrapper.appendChild(homeBtn);
+  controlWrapper.appendChild(resetBtn);
+
+  div.appendChild(controlWrapper);
 
   /* ================= HELPERS ================= */
   function setPlayerState(state) {
@@ -140,6 +191,8 @@ div.appendChild(soundBtn);
   function resetGame() {
     gameState.map = [];
     gameState.enemies = [];
+    correctCount = 0;
+    incorrectCount = 0;
   }
 
   function canReachGoal() {
@@ -351,13 +404,15 @@ div.appendChild(soundBtn);
       setTimeout(() => {
         ResultPopup({
           type: "win",
+          correct: correctCount,
+          incorrect: incorrectCount,
           onRestart: () => {
             resetGame();
             router.navigate(GameScene);
           },
           onExit: () => {
             resetGame();
-            router.navigate(StartScene);
+            window.location.href = "https://www.lmo.edu.vn/student/lesson-detail/72";
           }
 
         });
@@ -423,11 +478,13 @@ div.appendChild(soundBtn);
           isQuizOpen = false;
           showPraise();
           doMove(nx, ny);
+          correctCount++;
         },
         onLose: () => {
           playSound("lose");
           enemy.alive = false;
           gameState.map[ny][nx] = TILE.SHEEP;
+          incorrectCount++;
 
           isQuizOpen = false;
 
@@ -440,13 +497,15 @@ div.appendChild(soundBtn);
             playSound("lose");
             ResultPopup({
               type: "lose",
+              correct: correctCount,
+              incorrect: incorrectCount,
               onRestart: () => {
                 resetGame();
                 router.navigate(GameScene);
               },
               onExit: () => {
                 resetGame();
-                router.navigate(StartScene);
+                window.location.href = "https://www.lmo.edu.vn/student/lesson-detail/72";
               }
             });
           }

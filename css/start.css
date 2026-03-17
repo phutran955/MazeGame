@@ -42,21 +42,10 @@
   transform: scale(0.95);
 }
 
-
-
-
-
-
-
-
-
-
-
-
 .quiz-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.6);
+  background: rgba(0, 0, 0, 0.6);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -76,8 +65,6 @@
   padding: 8px 16px;
 }
 
-
-
 /* ================= LOADING SCENE ================= */
 .loading-scene {
   width: 1720px;
@@ -88,11 +75,7 @@
   justify-content: center;
   align-items: center;
 
-  background: linear-gradient(
-    180deg,
-    #1e2a38,
-    #111827
-  );
+  background: linear-gradient(180deg, #1e2a38, #111827);
 
   color: #fff;
   font-family: "Segoe UI", system-ui, sans-serif;
@@ -130,74 +113,3 @@
     transform: rotate(360deg);
   }
 }
-
-
-
-/* ================= RESULT POPUP ================= */
-.result-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.65);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 999;
-}
-
-.result-popup {
-  width: 420px;
-  padding: 32px;
-  border-radius: 16px;
-  text-align: center;
-  color: #fff;
-  animation: popup-scale 0.25s ease;
-}
-
-.result-popup.win {
-  background: linear-gradient(135deg, #22c55e, #16a34a);
-}
-
-.result-popup.lose {
-  background: linear-gradient(135deg, #ef4444, #991b1b);
-}
-
-.result-popup h2 {
-  font-size: 36px;
-  margin-bottom: 12px;
-}
-
-.result-popup p {
-  font-size: 18px;
-  margin-bottom: 24px;
-}
-
-.result-popup .buttons {
-  display: flex;
-  gap: 16px;
-  justify-content: center;
-}
-
-.result-popup button {
-  padding: 10px 18px;
-  border: none;
-  border-radius: 10px;
-  font-size: 16px;
-  cursor: pointer;
-}
-
-.result-popup button:hover {
-  opacity: 0.9;
-}
-
-@keyframes popup-scale {
-  from {
-    transform: scale(0.8);
-    opacity: 0;
-  }
-  to {
-    transform: scale(1);
-    opacity: 1;
-  }
-}
-
-

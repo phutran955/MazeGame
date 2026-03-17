@@ -1,10 +1,10 @@
 import { apiGet } from "./api.js";
 
 
-const QUIZ_ID = 19;
-const QUIZ_MODE = "level";
-const DIFFICULTY_ORDER = ["basic", "level", "advanced"];
+const params = new URLSearchParams(window.location.search);
 
+const LESSON_ID = params.get("lessonId") || 72;
+const QUIZ_MODE = params.get("status") || "basic";
 
 function mapQuestion(question) {
 
@@ -83,30 +83,33 @@ function mapQuestion(question) {
   return null;
 }
 
+async function getFullQuestion(question) {
+  const detail = await apiGet(`/questions/${question.id}`);
+
+  return mapQuestion(detail);
+}
+
 export const quizService = {
 
   async getQuestions() {
-  const quiz = await apiGet(`/exercises/${QUIZ_ID}`);
 
-  if (!quiz.questions || quiz.questions.length === 0) {
-    return [];
+    const lesson = await apiGet(`/lessons/${LESSON_ID}`);
+
+    if (!lesson.questions || lesson.questions.length === 0) {
+      return [];
+    }
+
+    // 👉 lọc status từ lesson trước
+    const filteredQuestions = lesson.questions.filter(
+      q => q.status === QUIZ_MODE
+    );
+
+    // 👉 lấy chi tiết question + answers
+    const fullQuestions = await Promise.all(
+      filteredQuestions.map(q => getFullQuestion(q))
+    );
+
+    return fullQuestions.filter(Boolean);
   }
-
-  const maxIndex = DIFFICULTY_ORDER.indexOf(QUIZ_MODE);
-
-  if (maxIndex === -1) {
-    console.error("Invalid QUIZ_MODE:", QUIZ_MODE);
-    return [];
-  }
-
-  return quiz.questions
-    // ✅ Lấy từ basic → tới mode hiện tại
-    .filter(q => {
-      const idx = DIFFICULTY_ORDER.indexOf(q.status);
-      return idx !== -1 && idx <= maxIndex;
-    })
-    .map(mapQuestion)
-    .filter(Boolean);
-}
 
 };

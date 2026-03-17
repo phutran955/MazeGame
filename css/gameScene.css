@@ -38,8 +38,6 @@
   pointer-events: none;
 }
 
-
-
 /* ===== MAP ===== */
 #map-layer {
   position: absolute;
@@ -91,7 +89,9 @@
   height: var(--tile-size);
   background-repeat: no-repeat;
   image-rendering: pixelated;
-  transition: left 2s linear, top 2s linear;
+  transition:
+    left 2s linear,
+    top 2s linear;
 }
 
 /* ===== IDLE: 8 FRAME ===== */
@@ -148,7 +148,6 @@
   }
 }
 
-
 /* ===== ENEMY (BEAR) ===== */
 .enemy {
   position: absolute;
@@ -174,7 +173,6 @@
     background-position-x: calc(var(--tile-size) * -6);
   }
 }
-
 
 /* ===== TREE ===== */
 .tree {
@@ -214,7 +212,6 @@
   transform: translateY(-20%) translateX(3%);
 }
 
-
 /* ===== GOAL ===== */
 .goal {
   position: absolute;
@@ -227,13 +224,18 @@
 .goal.gold {
   background-image: url("/assets/goal/2.png");
   background-size: calc(var(--tile-size) * 6) var(--tile-size);
-  animation: GoalGold 0.8s steps(6) infinite,
-             glow 1s ease-in-out infinite alternate;
+  animation:
+    GoalGold 0.8s steps(6) infinite,
+    glow 1s ease-in-out infinite alternate;
 }
 
 @keyframes glow {
-  from { filter: drop-shadow(0 0 5px gold); }
-  to { filter: drop-shadow(0 0 20px orange); }
+  from {
+    filter: drop-shadow(0 0 5px gold);
+  }
+  to {
+    filter: drop-shadow(0 0 20px orange);
+  }
 }
 
 @keyframes GoalGold {
@@ -261,7 +263,7 @@
   animation: SheepGrass 5s steps(12) infinite;
 }
 
-@keyframes SheepGrass{
+@keyframes SheepGrass {
   from {
     background-position-x: 0px;
   }
@@ -285,15 +287,13 @@
   }
 }
 
-.sound-btn{
+.sound-btn img {
   position: absolute;
-  top: 40px;
-  right: 40px;
+  bottom: 30px;
+  right: 30px;
 
-  width: 60px;
-  height: 60px;
-
-  font-size: 80px;
+  width: 110px;
+  height: 110px;
 
   background-color: transparent;
   border: none;
@@ -306,6 +306,34 @@
 
   image-rendering: pixelated;
 
-
   transition: transform 0.05s;
+}
+
+.control-buttons {
+  position: absolute;
+  top: 30px; /* nằm dưới sound-btn (40px + size ~60px + khoảng cách) */
+  right: 30px; /* canh thẳng với sound */
+
+  display: flex;
+  flex-direction: column; /* 👉 xếp dọc */
+  gap: 10px;
+
+  z-index: 10;
+}
+
+.control-btn {
+  padding: 0;
+  margin-bottom: 20px;
+
+  background-color: transparent;
+  border: none;
+}
+
+.control-btn img {
+  width: 110px;
+  height: 110px;
+}
+
+.control-btn:hover {
+  transform: scale(1.05);
 }

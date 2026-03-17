@@ -6,45 +6,43 @@ const sounds = {
   bgm: new Audio("/assets/sound/mazebackground.mp3")
 };
 
-let soundEnabled = true;
+let bgmEnabled = true;
 
 // Nhạc nền lặp
 sounds.bgm.loop = true;
 sounds.bgm.volume = 0.1;
+sounds.correct.volume = 0.3;
 
 export function playSound(name) {
-  if (!soundEnabled) return;
-
   const sound = sounds[name];
-  if (!sound) return;
+  if (!sound || name === "bgm") return;
 
   sound.currentTime = 0;
   sound.play();
 
-  // 🔥 Nếu là mazerun (move) thì chỉ phát 1 giây
   if (name === "move") {
     setTimeout(() => {
       sound.pause();
       sound.currentTime = 0;
-    }, 2000); 
+    }, 2000);
   }
 }
 
 export function playBGM() {
-  if (!soundEnabled) return;
+  if (!bgmEnabled) return;
   sounds.bgm.play();
 }
 
 export function toggleSound() {
-  soundEnabled = !soundEnabled;
+  bgmEnabled = !bgmEnabled;
 
-  if (!soundEnabled) {
+  if (!bgmEnabled) {
     sounds.bgm.pause();
   } else {
     sounds.bgm.play();
   }
 
-  return soundEnabled;
+  return bgmEnabled;
 }
 
 export function stopBGM() {
