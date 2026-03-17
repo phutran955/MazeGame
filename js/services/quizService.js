@@ -99,12 +99,12 @@ export const quizService = {
       return [];
     }
 
-    // 👉 lọc status từ lesson trước
+    // lọc status từ lesson trước
     const filteredQuestions = lesson.questions.filter(
       q => q.status === QUIZ_MODE
     );
 
-    // 👉 lấy chi tiết question + answers
+    // lấy chi tiết question + answers
     const fullQuestions = await Promise.all(
       filteredQuestions.map(q => getFullQuestion(q))
     );

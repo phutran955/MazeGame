@@ -30,7 +30,6 @@ export default function GameScene() {
   playBGM();
   let isQuizOpen = false;
   let isMoving = false;
-  //let camera = { x: 0, y: 0 };
 
   const DESIGN_WIDTH = 1720;
   const DESIGN_HEIGHT = 720;
@@ -228,7 +227,7 @@ export default function GameScene() {
       const [x, y] = queue.shift();
 
       if (gameState.map[y][x] === TILE.GOAL) {
-        return true; // ✅ tới đích
+        return true; // tới đích
       }
 
       for (const [dx, dy] of dirs) {
@@ -250,7 +249,7 @@ export default function GameScene() {
       }
     }
 
-    return false; // ❌ hết đường
+    return false; // hết đường
   }
 
 
@@ -259,34 +258,6 @@ export default function GameScene() {
   function clamp(v, min, max) {
     return Math.max(min, Math.min(max, v));
   }
-
-  // function updateCamera() {
-  //   const px = gameState.player.x;
-  //   const py = gameState.player.y;
-
-  //   const targetX = px - Math.floor(VIEW_COLS / 2);
-  //   const targetY = py - Math.floor((VIEW_ROWS - 1) / 2);
-
-  //   const clampX = clamp(targetX, 0, MAP_COLS - VIEW_COLS);
-  //   const clampY = clamp(targetY, 0, MAP_ROWS - VIEW_ROWS);
-
-  //   // Smooth camera (lerp)
-  //   const smooth = 0.15;
-
-  //   camera.x += (clampX - camera.x) * smooth;
-  //   camera.y += (clampY - camera.y) * smooth;
-
-  //   mapLayer.style.transform = `translate(
-  //   ${-camera.x * TILE_SIZE}px,
-  //   ${-camera.y * TILE_SIZE}px
-  // )`;
-  // }
-
-  // function cameraLoop() {
-  //   updateCamera();
-  //   requestAnimationFrame(cameraLoop);
-  // }
-
 
   /* ================= MAP ================= */
   function renderMap() {
@@ -340,14 +311,6 @@ export default function GameScene() {
         el.addEventListener("click", () => {
           const tx = Number(el.dataset.x);
           const ty = Number(el.dataset.y);
-
-          // chỉ cho click tile đang nằm trong camera
-          // if (
-          //   tx < camera.x ||
-          //   ty < camera.y ||
-          //   tx >= camera.x + VIEW_COLS ||
-          //   ty >= camera.y + VIEW_ROWS
-          // ) return;
 
           if (!isAdjacent(tx, ty)) return;
 
@@ -521,7 +484,6 @@ export default function GameScene() {
     doMove(nx, ny);
   }
 
-
   playerEl.addEventListener("transitionend", () => {
     if (!isMoving) return;
 
@@ -534,7 +496,6 @@ export default function GameScene() {
     renderMap();
     //updateCamera();
   });
-
 
   /* ================= KEYBOARD ================= */
   function handleKey(e) {
@@ -566,8 +527,6 @@ export default function GameScene() {
 
   renderMap();
   renderPlayer();
-  //cameraLoop();
-
 
   return div;
 }

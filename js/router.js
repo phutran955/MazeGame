@@ -6,14 +6,13 @@ export const router = {
 
     const result = sceneFn();
 
-    // nếu scene là async
     if (result instanceof Promise) {
       const node = await result;
       if (node instanceof Node) {
         app.appendChild(node);
       }
     }
-    // nếu scene là sync
+    
     else if (result instanceof Node) {
       app.appendChild(result);
     } else {
