@@ -29,8 +29,6 @@ export default function LoadingScene() {
         .filter(q => q.status === gameState.difficulty)
         .slice(0, 7);
 
-      gameState.hearts = 3;
-
       // Cho loading hiện tối thiểu 500ms
       setTimeout(() => {
         router.navigate(GameScene);
