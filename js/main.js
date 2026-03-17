@@ -1,7 +1,7 @@
 import { router } from "./router.js";
-import StartScene from "./scenes/StartScene.js";
+import LoadingScene from "./scenes/LoadingScene.js";
 
-router.navigate(StartScene);
+router.navigate(LoadingScene);
 
 function scaleApp() {
   const DESIGN_WIDTH = 1720;
