@@ -1,8 +1,7 @@
 import { gameState } from "../state/gameState.js";
 import { generateValidMapRandom } from "../services/mapService.js";
 import { router } from "../router.js";
-import { playSound, playBGM } from "../scenes/soundManager.js";
-
+import { playSound, playBGM, toggleSound  } from "../scenes/soundManager.js";
 import { SPRITES } from "../configs/sprites.js";
 import StartScene from "./StartScene.js";
 import QuizPopup from "../components/QuizPopup.js";
@@ -82,6 +81,19 @@ export default function GameScene() {
   mapLayer.appendChild(playerEl);
   gameView.appendChild(mapLayer);
   div.append(gameView);
+
+  /* ================= SOUND BUTTON ================= */
+
+const soundBtn = document.createElement("button");
+soundBtn.innerText = "🔊";
+soundBtn.className = "sound-btn";
+
+soundBtn.addEventListener("click", () => {
+  const enabled = toggleSound();
+  soundBtn.innerText = enabled ? "🔊" : "🔇";
+});
+
+div.appendChild(soundBtn);
 
   /* ================= HELPERS ================= */
   function setPlayerState(state) {

@@ -6,11 +6,15 @@ const sounds = {
   bgm: new Audio("/assets/sound/mazebackground.mp3")
 };
 
+let soundEnabled = true;
+
 // Nhạc nền lặp
 sounds.bgm.loop = true;
 sounds.bgm.volume = 0.1;
 
 export function playSound(name) {
+  if (!soundEnabled) return;
+
   const sound = sounds[name];
   if (!sound) return;
 
@@ -27,7 +31,20 @@ export function playSound(name) {
 }
 
 export function playBGM() {
+  if (!soundEnabled) return;
   sounds.bgm.play();
+}
+
+export function toggleSound() {
+  soundEnabled = !soundEnabled;
+
+  if (!soundEnabled) {
+    sounds.bgm.pause();
+  } else {
+    sounds.bgm.play();
+  }
+
+  return soundEnabled;
 }
 
 export function stopBGM() {
