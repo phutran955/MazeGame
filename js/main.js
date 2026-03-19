@@ -1,6 +1,18 @@
 import { router } from "./router.js";
 import LoadingScene from "./scenes/LoadingScene.js";
+import { playBGM } from "./components/soundManager.js";
 
+function startMusic() {
+  playBGM();
+
+  window.removeEventListener("pointerdown", startMusic);
+  window.removeEventListener("keydown", startMusic);
+  window.removeEventListener("touchstart", startMusic);
+}
+
+window.addEventListener("pointerdown", startMusic);
+window.addEventListener("keydown", startMusic);
+window.addEventListener("touchstart", startMusic);
 router.navigate(LoadingScene);
 
 function scaleApp() {

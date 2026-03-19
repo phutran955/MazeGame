@@ -1,0 +1,70 @@
+
+/* ================= LOADING SCENE ================= */
+.loading-scene {
+  width: 1720px;
+  height: 720px;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+
+  background: linear-gradient(180deg, #1e2a38, #111827);
+
+  color: #fff;
+  font-family: "Segoe UI", system-ui, sans-serif;
+}
+
+/* Title */
+.loading-scene h2 {
+  font-size: 48px;
+  margin-bottom: 12px;
+  letter-spacing: 1px;
+}
+
+/* Text */
+.loading-scene p {
+  font-size: 18px;
+  opacity: 0.85;
+}
+
+/* ================= SPINNER ================= */
+.loading-scene::after {
+  content: "";
+  width: 56px;
+  height: 56px;
+  margin-top: 32px;
+
+  border: 5px solid rgba(255, 255, 255, 0.15);
+  border-top-color: #38bdf8;
+  border-radius: 50%;
+
+  animation: loading-spin 1s linear infinite;
+}
+
+@keyframes loading-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ================= ERROR STATE ================= */
+.loading-scene.error {
+  background: linear-gradient(180deg, #3b0d0d, #1f0808);
+}
+
+/* Title khi lỗi */
+.loading-scene.error h2 {
+  color: #f87171;
+}
+
+/* Text khi lỗi */
+.loading-scene.error p {
+  color: #fecaca;
+}
+
+/* Spinner đổi màu hoặc tắt */
+.loading-scene.error::after {
+  border-top-color: #ef4444;
+  animation: none; /* ❌ dừng quay */
+}
