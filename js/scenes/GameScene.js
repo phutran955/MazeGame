@@ -25,6 +25,8 @@ const HUD_HEIGHT = 64;
 let correctCount = 0;
 let incorrectCount = 0;
 
+const params = new URLSearchParams(window.location.search);
+const LESSON_ID = params.get("lessonId");
 
 export default function GameScene() {
   playBGM();
@@ -137,7 +139,7 @@ export default function GameScene() {
   homeBtn.addEventListener("click", () => {
     playSound("click");
     resetGame();
-    window.location.href = "https://www.lmo.edu.vn/student/lesson-detail/72";
+    window.location.href = "https://www.lmo.edu.vn/student/lesson-detail/" + LESSON_ID;
   });
 
   controlWrapper.appendChild(homeBtn);
@@ -375,7 +377,7 @@ export default function GameScene() {
           },
           onExit: () => {
             resetGame();
-            window.location.href = "https://www.lmo.edu.vn/student/lesson-detail/72";
+            window.location.href = "https://www.lmo.edu.vn/student/lesson-detail/" + LESSON_ID;
           }
 
         });
@@ -468,7 +470,7 @@ export default function GameScene() {
               },
               onExit: () => {
                 resetGame();
-                window.location.href = "https://www.lmo.edu.vn/student/lesson-detail/72";
+                window.location.href = "https://www.lmo.edu.vn/student/lesson-detail/" + LESSON_ID;
               }
             });
           }
