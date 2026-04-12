@@ -10,7 +10,7 @@ export default function LoadingScene() {
   div.style.height = "720px";
 
   div.innerHTML = `
-    <h2>⏳ Loading questions...</h2>
+    <h2>Loading questions...</h2>
     <p id="loadingText">Fetching quiz data</p>
   `;
 
@@ -19,7 +19,7 @@ export default function LoadingScene() {
     try {
       const loadingText = div.querySelector("#loadingText");
 
-      loadingText.textContent = "📡 Fetching quiz data...";
+      loadingText.textContent = "Fetching quiz data...";
       const allQuestions = await quizService.getQuestions();
 
       if (!Array.isArray(allQuestions) || allQuestions.length === 0) {
@@ -32,7 +32,7 @@ export default function LoadingScene() {
         .filter(q => q.status === gameState.difficulty)
         .slice(0, 7);
 
-      loadingText.textContent = "🖼️ Loading assets...";
+      loadingText.textContent = "Loading assets...";
       await preloadAssets();
 
       // Cho loading hiện tối thiểu 500ms
@@ -46,7 +46,7 @@ export default function LoadingScene() {
       div.classList.add("error");
 
       div.querySelector("#loadingText").textContent =
-        "❌ Failed to load questions";
+        "!!!Failed to load questions!!!";
     }
   })();
 

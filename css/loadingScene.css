@@ -9,10 +9,8 @@
   justify-content: center;
   align-items: center;
 
-  background: linear-gradient(180deg, #1e2a38, #111827);
-
-  color: #fff;
-  font-family: "Segoe UI", system-ui, sans-serif;
+  background: url("../assets/bg/loading_BG.jpg") center / cover no-repeat;
+  font-family: "Cinzel", system-ui, sans-serif;
 }
 
 /* Title */
@@ -49,18 +47,17 @@
 }
 
 /* ================= ERROR STATE ================= */
-.loading-scene.error {
-  background: linear-gradient(180deg, #3b0d0d, #1f0808);
-}
 
 /* Title khi lỗi */
 .loading-scene.error h2 {
-  color: #f87171;
+  color: #e73939;
 }
 
 /* Text khi lỗi */
 .loading-scene.error p {
-  color: #fecaca;
+  color: #a70f90;
+  font-weight: bold;
+  
 }
 
 /* Spinner đổi màu hoặc tắt */
